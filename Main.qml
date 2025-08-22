@@ -4,15 +4,15 @@ import QtQuick.Layouts 1.15
 
 ApplicationWindow {
     visible: true
-    width: 1000
-    height: 700
+    width: 1200
+    height: 800
     title: "File Browser - " + (fileModel.currentDirectory || "Current Directory")
 
     ColumnLayout {
         anchors.fill: parent
         spacing: 5
 
-        // Панель кнопок сортировки
+        // Панель управления
         RowLayout {
             Layout.fillWidth: true
             Layout.margins: 5
@@ -32,7 +32,11 @@ ApplicationWindow {
                 onClicked: fileModel.sortBySize()
             }
 
-            // Показ текущей директории
+            Text {
+                text: "Total files: " + listView.count
+                color: "gray"
+            }
+
             Text {
                 text: fileModel.currentDirectory
                 Layout.fillWidth: true
@@ -61,8 +65,8 @@ ApplicationWindow {
                 spacing: 5
 
                 Text {
-                    text: "Name";
-                    Layout.preferredWidth: 400
+                    text: "Path";
+                    Layout.preferredWidth: 600
                     font.bold: true
                     horizontalAlignment: Text.AlignLeft
                 }
@@ -87,8 +91,8 @@ ApplicationWindow {
                 spacing: 5
 
                 Text {
-                    text: model.name
-                    Layout.preferredWidth: 400
+                    text: model.relativePath  // Показываем относительный путь
+                    Layout.preferredWidth: 600
                     elide: Text.ElideRight
                     color: model.isDirectory ? "blue" : "black"
                     font.bold: model.isDirectory

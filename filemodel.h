@@ -16,6 +16,7 @@ public:
     enum Roles {
         NameRole = Qt::UserRole + 1,
         PathRole,
+        RelativePathRole,
         SizeRole,
         TypeRole,
         IsDirRole
@@ -42,10 +43,11 @@ private:
     struct FileInfo {
         QString name;
         QString path;
+        QString relativePath;
         qint64 size;
         QString type;
         bool isDirectory;
-        QString extension; // Добавляем для сортировки
+        QString extension;
     };
 
     QVector<FileInfo> m_files;

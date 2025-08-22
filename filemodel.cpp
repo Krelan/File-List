@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QDebug>
 #include <algorithm>
+#include <stack>
 
 FileModel::FileModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -24,6 +25,7 @@ QVariant FileModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case NameRole: return file.name;
     case PathRole: return file.path;
+    case RelativePathRole: return file.relativePath;
     case SizeRole: return file.size;
     case TypeRole: return file.type;
     case IsDirRole: return file.isDirectory;
@@ -36,6 +38,7 @@ QHash<int, QByteArray> FileModel::roleNames() const
     return {
         {NameRole, "name"},
         {PathRole, "path"},
+        {RelativePathRole, "relativePath"},
         {SizeRole, "size"},
         {TypeRole, "type"},
         {IsDirRole, "isDirectory"}
@@ -51,25 +54,42 @@ void FileModel::loadDirectory(const QString& path)
     emit currentDirectoryChanged();
 
     try {
-        for (const auto& entry : std::filesystem::directory_iterator(path.toStdString())) {
-            QFileInfo qFileInfo(QString::fromStdString(entry.path().string()));
+        std::stack<std::pair<std::filesystem::path, QString>> directories;
+        QDir rootDir(path);
 
-            FileInfo info;
-            info.name = qFileInfo.fileName();
-            info.path = qFileInfo.filePath();
-            info.size = qFileInfo.size();
-            info.isDirectory = qFileInfo.isDir();
-            info.extension = qFileInfo.suffix().toLower();
+        directories.push({path.toStdString(), ""});
 
-            if (info.isDirectory) {
-                info.type = "Directory";
-            } else if (info.extension.isEmpty()) {
-                info.type = "File";
-            } else {
-                info.type = info.extension.toUpper() + " File";
+        while (!directories.empty()) {
+            auto [current_dir, relative_path] = directories.top();
+            directories.pop();
+
+            for (const auto& entry : std::filesystem::directory_iterator(current_dir)) {
+                QFileInfo qFileInfo(QString::fromStdString(entry.path().string()));
+
+                if (qFileInfo.fileName() == "." || qFileInfo.fileName() == "..") {
+                    continue;
+                }
+
+                FileInfo info;
+                info.name = qFileInfo.fileName();
+                info.path = qFileInfo.filePath();
+                info.size = qFileInfo.size();
+                info.isDirectory = qFileInfo.isDir();
+                info.extension = qFileInfo.suffix().toLower();
+
+                info.relativePath = relative_path + (relative_path.isEmpty() ? "" : "/") + info.name;
+
+                if (info.isDirectory) {
+                    info.type = "Directory";
+                    directories.push({entry.path(), info.relativePath});
+                } else if (info.extension.isEmpty()) {
+                    info.type = "File";
+                } else {
+                    info.type = info.extension.toUpper() + " File";
+                }
+
+                m_files.append(info);
             }
-
-            m_files.append(info);
         }
     } catch (const std::exception& e) {
         qWarning() << "Error reading directory:" << e.what();
@@ -83,15 +103,12 @@ void FileModel::sortByType()
     beginResetModel();
 
     std::sort(m_files.begin(), m_files.end(), [](const FileInfo& a, const FileInfo& b) {
-        // Сначала директории, потом файлы
         if (a.isDirectory != b.isDirectory) {
             return a.isDirectory > b.isDirectory;
         }
-        // Затем сортируем по расширению
         if (a.extension != b.extension) {
             return a.extension < b.extension;
         }
-        // Если расширение одинаковое - по имени
         return a.name.toLower() < b.name.toLower();
     });
 
@@ -103,11 +120,9 @@ void FileModel::sortByName()
     beginResetModel();
 
     std::sort(m_files.begin(), m_files.end(), [](const FileInfo& a, const FileInfo& b) {
-        // Сначала директории, потом файлы
         if (a.isDirectory != b.isDirectory) {
             return a.isDirectory > b.isDirectory;
         }
-        // Затем по имени
         return a.name.toLower() < b.name.toLower();
     });
 
@@ -119,11 +134,9 @@ void FileModel::sortBySize()
     beginResetModel();
 
     std::sort(m_files.begin(), m_files.end(), [](const FileInfo& a, const FileInfo& b) {
-        // Сначала директории, потом файлы
         if (a.isDirectory != b.isDirectory) {
             return a.isDirectory > b.isDirectory;
         }
-        // Затем по размеру (большие файлы внизу)
         return a.size < b.size;
     });
 
