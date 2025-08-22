@@ -6,7 +6,8 @@ ApplicationWindow {
     visible: true
     width: 1200
     height: 800
-    title: "File Browser - " + (fileModel.currentDirectory || "Current Directory")
+    title: "File Browser - " + (fileModel.currentDirectory || "Current Directory") + " (" + listView.count + " files)"
+
 
     ColumnLayout {
         anchors.fill: parent
@@ -32,8 +33,14 @@ ApplicationWindow {
                 onClicked: fileModel.sortBySize()
             }
 
+            Button {
+                           text: fileModel.showFullPath ? "Hide Path" : "Show Path"
+                           onClicked: fileModel.showFullPath = !fileModel.showFullPath
+                           ToolTip.text: "Toggle full path display"
+                       }
+
             Text {
-                text: "Total files: " + listView.count
+                text: "Files: " + listView.count
                 color: "gray"
             }
 
@@ -65,7 +72,7 @@ ApplicationWindow {
                 spacing: 5
 
                 Text {
-                    text: "Path";
+                    text: fileModel.showFullPath ? "Full Path" : "File Name";
                     Layout.preferredWidth: 600
                     font.bold: true
                     horizontalAlignment: Text.AlignLeft
@@ -82,6 +89,12 @@ ApplicationWindow {
                     font.bold: true
                     horizontalAlignment: Text.AlignLeft
                 }
+                Text {
+                    text: "Extension";
+                    Layout.preferredWidth: 100
+                    font.bold: true
+                    horizontalAlignment: Text.AlignLeft
+                }
             }
 
             // Элемент списка
@@ -91,14 +104,14 @@ ApplicationWindow {
                 spacing: 5
 
                 Text {
-                    text: model.relativePath  // Показываем относительный путь
+                    text: model.displayName
                     Layout.preferredWidth: 600
                     elide: Text.ElideRight
-                    color: model.isDirectory ? "blue" : "black"
-                    font.bold: model.isDirectory
+                    color: "black"
+                    font.italic: fileModel.showFullPath
                 }
                 Text {
-                    text: model.isDirectory ? "" : formatSize(model.size)
+                    text: formatSize(model.size)
                     Layout.preferredWidth: 150
                     horizontalAlignment: Text.AlignRight
                     color: "gray"
@@ -107,8 +120,16 @@ ApplicationWindow {
                     text: model.type
                     Layout.preferredWidth: 200
                     elide: Text.ElideRight
-                    color: model.isDirectory ? "blue" : "darkgreen"
+                    color: "darkgreen"
                 }
+                Text {
+                    text: model.extension
+                    Layout.preferredWidth: 100
+                    horizontalAlignment: Text.AlignLeft
+                    color: "darkblue"
+                    font.bold: true
+                }
+
             }
 
             ScrollBar.vertical: ScrollBar {}

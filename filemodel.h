@@ -11,6 +11,7 @@ class FileModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QString currentDirectory READ currentDirectory WRITE setCurrentDirectory NOTIFY currentDirectoryChanged)
+    Q_PROPERTY(bool showFullPath READ showFullPath WRITE setShowFullPath NOTIFY showFullPathChanged)
 
 public:
     enum Roles {
@@ -19,7 +20,8 @@ public:
         RelativePathRole,
         SizeRole,
         TypeRole,
-        IsDirRole
+        ExtensionRole,
+        DisplayNameRole
     };
 
     explicit FileModel(QObject *parent = nullptr);
@@ -36,8 +38,12 @@ public:
     QString currentDirectory() const;
     void setCurrentDirectory(const QString& directory);
 
+    bool showFullPath() const;
+    void setShowFullPath(bool show);
+
 signals:
     void currentDirectoryChanged();
+    void showFullPathChanged();
 
 private:
     struct FileInfo {
@@ -46,11 +52,11 @@ private:
         QString relativePath;
         qint64 size;
         QString type;
-        bool isDirectory;
         QString extension;
     };
 
     QVector<FileInfo> m_files;
     QString m_currentDirectory;
+    bool m_showFullPath = false;
 };
 #endif // FILEMODEL_H

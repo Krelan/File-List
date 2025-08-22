@@ -15,36 +15,6 @@ int FileModel::rowCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : m_files.size();
 }
 
-QVariant FileModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row() < 0 || index.row() >= m_files.size())
-        return QVariant();
-
-    const FileInfo &file = m_files.at(index.row());
-
-    switch (role) {
-    case NameRole: return file.name;
-    case PathRole: return file.path;
-    case RelativePathRole: return file.relativePath;
-    case SizeRole: return file.size;
-    case TypeRole: return file.type;
-    case IsDirRole: return file.isDirectory;
-    default: return QVariant();
-    }
-}
-
-QHash<int, QByteArray> FileModel::roleNames() const
-{
-    return {
-        {NameRole, "name"},
-        {PathRole, "path"},
-        {RelativePathRole, "relativePath"},
-        {SizeRole, "size"},
-        {TypeRole, "type"},
-        {IsDirRole, "isDirectory"}
-    };
-}
-
 void FileModel::loadDirectory(const QString& path)
 {
     beginResetModel();
@@ -70,19 +40,21 @@ void FileModel::loadDirectory(const QString& path)
                     continue;
                 }
 
+                if (qFileInfo.isDir()) {
+                    QString dirRelativePath = relative_path + (relative_path.isEmpty() ? "" : "/") + qFileInfo.fileName();
+                    directories.push({entry.path(), dirRelativePath});
+                    continue;
+                }
+
                 FileInfo info;
                 info.name = qFileInfo.fileName();
                 info.path = qFileInfo.filePath();
                 info.size = qFileInfo.size();
-                info.isDirectory = qFileInfo.isDir();
                 info.extension = qFileInfo.suffix().toLower();
 
-                info.relativePath = relative_path + (relative_path.isEmpty() ? "" : "/") + info.name;
+                info.relativePath = relative_path;
 
-                if (info.isDirectory) {
-                    info.type = "Directory";
-                    directories.push({entry.path(), info.relativePath});
-                } else if (info.extension.isEmpty()) {
+                if (info.extension.isEmpty()) {
                     info.type = "File";
                 } else {
                     info.type = info.extension.toUpper() + " File";
@@ -103,9 +75,6 @@ void FileModel::sortByType()
     beginResetModel();
 
     std::sort(m_files.begin(), m_files.end(), [](const FileInfo& a, const FileInfo& b) {
-        if (a.isDirectory != b.isDirectory) {
-            return a.isDirectory > b.isDirectory;
-        }
         if (a.extension != b.extension) {
             return a.extension < b.extension;
         }
@@ -120,9 +89,6 @@ void FileModel::sortByName()
     beginResetModel();
 
     std::sort(m_files.begin(), m_files.end(), [](const FileInfo& a, const FileInfo& b) {
-        if (a.isDirectory != b.isDirectory) {
-            return a.isDirectory > b.isDirectory;
-        }
         return a.name.toLower() < b.name.toLower();
     });
 
@@ -134,14 +100,12 @@ void FileModel::sortBySize()
     beginResetModel();
 
     std::sort(m_files.begin(), m_files.end(), [](const FileInfo& a, const FileInfo& b) {
-        if (a.isDirectory != b.isDirectory) {
-            return a.isDirectory > b.isDirectory;
-        }
         return a.size < b.size;
     });
 
     endResetModel();
 }
+
 
 QString FileModel::currentDirectory() const
 {
@@ -154,5 +118,54 @@ void FileModel::setCurrentDirectory(const QString& directory)
         m_currentDirectory = directory;
         loadDirectory(directory);
         emit currentDirectoryChanged();
+    }
+}
+
+QVariant FileModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() < 0 || index.row() >= m_files.size())
+        return QVariant();
+
+    const FileInfo &file = m_files.at(index.row());
+
+    switch (role) {
+    case NameRole: return file.name;
+    case PathRole: return file.path;
+    case RelativePathRole: return file.relativePath;
+    case SizeRole: return file.size;
+    case TypeRole: return file.type;
+    case ExtensionRole: return file.extension;
+    case DisplayNameRole:
+        // Динамически выбираем что показывать
+        return m_showFullPath ? file.path : file.name;
+    default: return QVariant();
+    }
+}
+
+QHash<int, QByteArray> FileModel::roleNames() const
+{
+    return {
+        {NameRole, "name"},
+        {PathRole, "path"},
+        {RelativePathRole, "relativePath"},
+        {SizeRole, "size"},
+        {TypeRole, "type"},
+        {ExtensionRole, "extension"},
+        {DisplayNameRole, "displayName"}  // Новая роль
+    };
+}
+
+bool FileModel::showFullPath() const
+{
+    return m_showFullPath;
+}
+
+void FileModel::setShowFullPath(bool show)
+{
+    if (m_showFullPath != show) {
+        m_showFullPath = show;
+        emit showFullPathChanged();
+        // Обновляем данные для отображения
+        emit dataChanged(index(0), index(rowCount() - 1), {DisplayNameRole});
     }
 }

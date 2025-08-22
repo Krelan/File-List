@@ -40,12 +40,14 @@ static constexpr auto qt_meta_stringdata_ZN9FileModelE = QtMocHelpers::stringDat
     "FileModel",
     "currentDirectoryChanged",
     "",
+    "showFullPathChanged",
     "loadDirectory",
     "path",
     "sortByType",
     "sortByName",
     "sortBySize",
-    "currentDirectory"
+    "currentDirectory",
+    "showFullPath"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -57,33 +59,36 @@ Q_CONSTINIT static const uint qt_meta_data_ZN9FileModelE[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
-       1,   51, // properties
+       6,   14, // methods
+       2,   58, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
+       2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   44,    2, 0x06,    2 /* Public */,
+       1,    0,   50,    2, 0x06,    3 /* Public */,
+       3,    0,   51,    2, 0x06,    4 /* Public */,
 
  // methods: name, argc, parameters, tag, flags, initial metatype offsets
-       3,    1,   45,    2, 0x02,    3 /* Public */,
-       5,    0,   48,    2, 0x02,    5 /* Public */,
-       6,    0,   49,    2, 0x02,    6 /* Public */,
-       7,    0,   50,    2, 0x02,    7 /* Public */,
+       4,    1,   52,    2, 0x02,    5 /* Public */,
+       6,    0,   55,    2, 0x02,    7 /* Public */,
+       7,    0,   56,    2, 0x02,    8 /* Public */,
+       8,    0,   57,    2, 0x02,    9 /* Public */,
 
  // signals: parameters
     QMetaType::Void,
+    QMetaType::Void,
 
  // methods: parameters
-    QMetaType::Void, QMetaType::QString,    4,
+    QMetaType::Void, QMetaType::QString,    5,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
 
  // properties: name, type, flags, notifyId, revision
-       8, QMetaType::QString, 0x00015103, uint(0), 0,
+       9, QMetaType::QString, 0x00015103, uint(0), 0,
+      10, QMetaType::Bool, 0x00015103, uint(1), 0,
 
        0        // eod
 };
@@ -97,9 +102,13 @@ Q_CONSTINIT const QMetaObject FileModel::staticMetaObject = { {
     qt_incomplete_metaTypeArray<qt_meta_tag_ZN9FileModelE_t,
         // property 'currentDirectory'
         QtPrivate::TypeAndForceComplete<QString, std::true_type>,
+        // property 'showFullPath'
+        QtPrivate::TypeAndForceComplete<bool, std::true_type>,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<FileModel, std::true_type>,
         // method 'currentDirectoryChanged'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'showFullPathChanged'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'loadDirectory'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
@@ -120,10 +129,11 @@ void FileModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->currentDirectoryChanged(); break;
-        case 1: _t->loadDirectory((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 2: _t->sortByType(); break;
-        case 3: _t->sortByName(); break;
-        case 4: _t->sortBySize(); break;
+        case 1: _t->showFullPathChanged(); break;
+        case 2: _t->loadDirectory((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 3: _t->sortByType(); break;
+        case 4: _t->sortByName(); break;
+        case 5: _t->sortBySize(); break;
         default: ;
         }
     }
@@ -136,11 +146,19 @@ void FileModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
                 return;
             }
         }
+        {
+            using _q_method_type = void (FileModel::*)();
+            if (_q_method_type _q_method = &FileModel::showFullPathChanged; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
+                *result = 1;
+                return;
+            }
+        }
     }
     if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
         switch (_id) {
         case 0: *reinterpret_cast< QString*>(_v) = _t->currentDirectory(); break;
+        case 1: *reinterpret_cast< bool*>(_v) = _t->showFullPath(); break;
         default: break;
         }
     }
@@ -148,6 +166,7 @@ void FileModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         void *_v = _a[0];
         switch (_id) {
         case 0: _t->setCurrentDirectory(*reinterpret_cast< QString*>(_v)); break;
+        case 1: _t->setShowFullPath(*reinterpret_cast< bool*>(_v)); break;
         default: break;
         }
     }
@@ -172,20 +191,20 @@ int FileModel::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 6;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 6)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 5;
+        _id -= 6;
     }
     if (_c == QMetaObject::ReadProperty || _c == QMetaObject::WriteProperty
             || _c == QMetaObject::ResetProperty || _c == QMetaObject::BindableProperty
             || _c == QMetaObject::RegisterPropertyMetaType) {
         qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }
@@ -194,5 +213,11 @@ int FileModel::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 void FileModel::currentDirectoryChanged()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
+}
+
+// SIGNAL 1
+void FileModel::showFullPathChanged()
+{
+    QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
 }
 QT_WARNING_POP
