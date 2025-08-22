@@ -1,0 +1,77 @@
+[
+    {
+        "classes": [
+            {
+                "className": "FileModel",
+                "lineNumber": 10,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "path",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 1,
+                        "name": "loadDirectory",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "name": "sortByType",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "name": "sortByName",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "name": "sortBySize",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "name": "currentDirectory",
+                        "notify": "currentDirectoryChanged",
+                        "read": "currentDirectory",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "write": "setCurrentDirectory"
+                    }
+                ],
+                "qualifiedClassName": "FileModel",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "name": "currentDirectoryChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "filemodel.h",
+        "outputRevision": 68
+    }
+]
